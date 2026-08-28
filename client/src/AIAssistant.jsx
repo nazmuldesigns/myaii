@@ -112,7 +112,7 @@ const AIAssistant = () => {
   const fileInputRef = useRef(null);
   const imageEditInputRef = useRef(null);
 
-  const API_BASE_URL = 'http://localhost:5001/api';
+  const API_BASE_URL = '/api';
   const authHeader = () => ({ 'Authorization': `Bearer ${localStorage.getItem('authToken')}` });
 // ============ EFFECTS ============
   useEffect(() => {
