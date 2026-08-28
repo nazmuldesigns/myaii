@@ -542,6 +542,8 @@ const AIAssistant = () => {
     setImagePreview(null);
     setIsLoading(true);
 
+    let aiMessage = null;
+
     try {
       const response = await fetch(`${API_BASE_URL}/chat/send`, {
         method: 'POST',
@@ -555,7 +557,6 @@ const AIAssistant = () => {
         }),
       });
 
-      let aiMessage;
       if (!response.ok) {
         const errorData = await response.json();
         aiMessage = {
@@ -573,24 +574,25 @@ const AIAssistant = () => {
           timestamp: new Date().toISOString(),
         };
       }
-      setMessages([...updatedMessages, aiMessage]);
     } catch (error) {
-      setMessages([...updatedMessages, {
+      aiMessage = {
         id: Date.now().toString(),
         role: 'assistant',
         content: `Error: ${error.message}`,
         timestamp: new Date().toISOString(),
-      }]);
+      };
     } finally {
       setIsLoading(false);
+      const finalMessages = aiMessage ? [...updatedMessages, aiMessage] : updatedMessages;
+      setMessages(finalMessages);
       setConversations(prev =>
         prev.map(conv =>
           conv.id === currentConversationId
             ? {
               ...conv,
-              messages: updatedMessages,
+              messages: finalMessages,
               updatedAt: new Date().toISOString(),
-              title: updatedMessages[0]?.content?.substring(0, 30) || 'New Chat',
+              title: finalMessages[0]?.content?.substring(0, 30) || 'New Chat',
             }
             : conv
         )
