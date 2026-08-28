@@ -37,6 +37,10 @@ async function initDatabase() {
       db = new Database(DB_PATH);
       console.log(`Database: SQLite initialized at ${DB_PATH}`);
     } else if (DB_TYPE === 'mysql') {
+      if (process.env.VERCEL) {
+        console.log('Database: MySQL is not supported on Vercel. Falling back to in-memory.');
+        return;
+      }
       pool = mysql.createPool(DB_URL);
       console.log(`Database: MySQL pool initialized for ${DB_URL}`);
     } else {

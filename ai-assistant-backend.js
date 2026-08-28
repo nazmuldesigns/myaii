@@ -77,15 +77,13 @@ async function initDb() {
       await database.createUser('admin', 'nazmul123@@@', 'user_2', 'admin');
       console.log('Database: seeded demo users');
     }
-  }
 
-  if (dbEnabled) {
     const savedApiConfig = await database.getApiConfig();
     if (savedApiConfig) {
       globalApiConfig = {
-        provider: savedApiConfig.provider || 'claude',
-        apiKey: savedApiConfig.apiKey || '',
-        model: savedApiConfig.model || 'claude-3-5-sonnet-20241022',
+        provider: savedApiConfig.provider || process.env.DEFAULT_PROVIDER || 'claude',
+        apiKey: savedApiConfig.apiKey || process.env.CLAUDE_API_KEY || process.env.OPENAI_API_KEY || process.env.CUSTOM_API_KEY || '',
+        model: savedApiConfig.model || process.env.CLAUDE_MODEL || process.env.OPENAI_MODEL || process.env.CUSTOM_API_MODEL || 'claude-3-5-sonnet-20241022',
         updatedAt: savedApiConfig.updatedAt || new Date().toISOString(),
         updatedBy: savedApiConfig.updatedBy || null,
       };
@@ -93,12 +91,26 @@ async function initDb() {
     const savedCustomConfig = await database.getCustomProviderConfig();
     if (savedCustomConfig) {
       customProviderConfig = {
-        endpoint: savedCustomConfig.endpoint || '',
-        headers: savedCustomConfig.headers ? JSON.parse(savedCustomConfig.headers) : {},
+        endpoint: savedCustomConfig.endpoint || process.env.CUSTOM_API_ENDPOINT || '',
+        headers: savedCustomConfig.headers ? JSON.parse(savedCustomConfig.headers) : (process.env.CUSTOM_API_HEADERS ? JSON.parse(process.env.CUSTOM_API_HEADERS) : {}),
         updatedAt: savedCustomConfig.updatedAt || null,
         updatedBy: savedCustomConfig.updatedBy || null,
       };
     }
+  } else {
+    globalApiConfig = {
+      provider: process.env.DEFAULT_PROVIDER || 'claude',
+      apiKey: process.env.CLAUDE_API_KEY || process.env.OPENAI_API_KEY || process.env.CUSTOM_API_KEY || '',
+      model: process.env.CLAUDE_MODEL || process.env.OPENAI_MODEL || process.env.CUSTOM_API_MODEL || 'claude-3-5-sonnet-20241022',
+      updatedAt: new Date().toISOString(),
+      updatedBy: null,
+    };
+    customProviderConfig = {
+      endpoint: process.env.CUSTOM_API_ENDPOINT || '',
+      headers: process.env.CUSTOM_API_HEADERS ? JSON.parse(process.env.CUSTOM_API_HEADERS) : {},
+      updatedAt: null,
+      updatedBy: null,
+    };
   }
 }
 
