@@ -225,7 +225,16 @@ async function dbRun(sql, params) {
     const stmt = db.prepare(sql);
     return stmt.run(...(params || []));
   } else if (pool) {
-    const [result] = await pool.query(sql, params || []);
+    const normalized = (params || []).map(p => {
+      if (typeof p === 'string' && /T\d\d:\d\d:\d\d(\.\d+)?Z?$/.test(p)) {
+        const d = new Date(p);
+        if (!isNaN(d.getTime())) {
+          return d.toISOString().slice(0, 19).replace('T', ' ');
+        }
+      }
+      return p;
+    });
+    const [result] = await pool.query(sql, normalized);
     return result;
   }
   return null;
