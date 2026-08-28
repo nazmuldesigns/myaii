@@ -454,6 +454,8 @@ export default {
   saveApiConfig,
   getCustomProviderConfig,
   saveCustomProviderConfig,
+  getAppSettings,
+  saveAppSettings,
   logActivity,
   getActivity,
   clearOldActivity,

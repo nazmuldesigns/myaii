@@ -631,10 +631,12 @@ app.post('/api/chat/send', verifyToken, async (req, res) => {
 
     let activeProvider = globalApiConfig.provider;
     let activeConfig = { ...globalApiConfig };
+    let hasUserApiKey = false;
 
     if (dbEnabled) {
       const userKey = await database.getUserApiKey(username);
       if (userKey && userKey.apiKey) {
+        hasUserApiKey = true;
         activeProvider = userKey.provider || globalApiConfig.provider;
         activeConfig = {
           provider: activeProvider,
@@ -665,7 +667,7 @@ app.post('/api/chat/send', verifyToken, async (req, res) => {
       return res.json({ response: demoReply, demo: true });
     }
 
-    if (!globalApiConfig.apiKey && !userApiKey) {
+    if (!globalApiConfig.apiKey && !hasUserApiKey) {
       return res.status(400).json({
         error: 'No API provider has been configured yet. Please contact an administrator.',
       });
