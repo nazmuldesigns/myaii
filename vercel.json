@@ -9,7 +9,7 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "client/dist"
+        "distDir": "dist"
       }
     }
   ],
@@ -17,6 +17,9 @@
     {
       "src": "/api/(.*)",
       "dest": "ai-assistant-backend.js"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
