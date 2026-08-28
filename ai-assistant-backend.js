@@ -1,13 +1,4 @@
 import express from 'express';
-import { initDatabase } from './database.js';
-
-const app = express();
-
-// সার্ভার চালু বা রিকোয়েস্ট হ্যান্ডেল হওয়ার আগে ডাটাবেস ইনিশিয়ালাইজ করা
-initDatabase().catch(err => console.error("DB Init Error:", err));
-
-
-import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
@@ -758,6 +749,50 @@ app.get('/api/health', (req, res) => {
       database: dbEnabled ? 'enabled' : 'in-memory',
     },
   });
+});
+
+// ============ APP SETTINGS (admin-managed) ============
+
+app.get('/api/admin/app-settings', verifyToken, async (req, res) => {
+  let settings;
+  if (dbEnabled) {
+    settings = await database.getAppSettings();
+  }
+  if (!settings) {
+    settings = { assistantName: 'Nazmi AI', updatedAt: null, updatedBy: null };
+  }
+  res.json({ settings });
+});
+
+app.get('/api/app-settings', verifyToken, async (req, res) => {
+  let settings;
+  if (dbEnabled) {
+    settings = await database.getAppSettings();
+  }
+  if (!settings) {
+    settings = { assistantName: 'Nazmi AI', updatedAt: null, updatedBy: null };
+  }
+  res.json({ settings });
+});
+
+app.post('/api/admin/app-settings', verifyToken, verifyAdmin, async (req, res) => {
+  const { assistantName } = req.body;
+  if (!assistantName || !assistantName.trim()) {
+    return res.status(400).json({ error: 'App name is required' });
+  }
+
+  const updatedAt = new Date().toISOString();
+  const updatedBy = req.user.username;
+
+  if (dbEnabled) {
+    await database.saveAppSettings({
+      assistantName: assistantName.trim(),
+      updatedAt,
+      updatedBy,
+    });
+  }
+
+  res.json({ message: 'App settings updated', settings: { assistantName: assistantName.trim(), updatedAt, updatedBy } });
 });
 
 // ============ ERROR HANDLING ============

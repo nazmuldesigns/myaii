@@ -672,7 +672,7 @@ const AIAssistant = () => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="demo"
+                   placeholder="username"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -694,10 +694,7 @@ const AIAssistant = () => {
               </button>
             </form>
 
-            <p className="text-xs text-gray-500 mt-4 text-center">
-              Demo user: <strong>demo</strong> / <strong>demo123</strong><br />
-              Admin: <strong>admin</strong> / <strong>admin123</strong>
-            </p>
+
           </div>
         </div>
       </div>

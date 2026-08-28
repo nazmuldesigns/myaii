@@ -52,6 +52,9 @@ const AIAssistant = () => {
   });
   const [editingConfig, setEditingConfig] = useState(aiConfig);
 
+  // ============ APP NAME (admin-managed) ============
+  const [appName, setAppName] = useState(() => localStorage.getItem('appName') || 'Nazmi AI');
+
   // ============ API CONFIG (admin-managed, read-only mirror) ============
   const [apiConfig, setApiConfig] = useState({ provider: 'claude', apiKey: '', model: '', managedByAdmin: true });
   const [availableProviders, setAvailableProviders] = useState([]);
@@ -84,6 +87,12 @@ const AIAssistant = () => {
   const [apiKeyModel, setApiKeyModel] = useState('');
   const [apiKeyError, setApiKeyError] = useState('');
   const [apiKeySuccess, setApiKeySuccess] = useState('');
+
+  // ============ ADMIN: app settings ============
+  const [appSettings, setAppSettings] = useState({ assistantName: 'Nazmi AI' });
+  const [appSettingsLoading, setAppSettingsLoading] = useState(false);
+  const [appSettingsError, setAppSettingsError] = useState('');
+  const [appSettingsSuccess, setAppSettingsSuccess] = useState('');
 
   // ============ USER: change password ============
   const [currentPassword, setCurrentPassword] = useState('');
@@ -127,6 +136,7 @@ const AIAssistant = () => {
     if (isLoggedIn) {
       loadProviders();
       loadApiConfig();
+      loadGlobalAppName();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
@@ -134,6 +144,12 @@ const AIAssistant = () => {
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode ? 'true' : 'false');
   }, [darkMode]);
+
+  useEffect(() => {
+    if (appName) {
+      document.title = `${appName} — Premium AI Assistant`;
+    }
+  }, [appName]);
 
   // ============ LOADERS ============
   const loadProviders = async () => {
@@ -158,6 +174,20 @@ const AIAssistant = () => {
       }
     } catch (err) {
       console.error('Failed to load API config:', err);
+    }
+  };
+
+  const loadGlobalAppName = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/app-settings`, { headers: authHeader() });
+      if (response.ok) {
+        const data = await response.json();
+        const name = data.settings?.assistantName || 'Nazmi AI';
+        setAppName(name);
+        localStorage.setItem('appName', name);
+      }
+    } catch (err) {
+      console.error('Failed to load app name:', err);
     }
   };
 
@@ -255,7 +285,48 @@ const AIAssistant = () => {
     loadAdminUsers();
     loadActivity('');
     loadUserApiKeys();
+    loadAppSettings();
   };
+
+  // ============ ADMIN: app settings ============
+  const loadAppSettings = async () => {
+    setAppSettingsLoading(true);
+    setAppSettingsError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/app-settings`, { headers: authHeader() });
+      if (response.ok) {
+        const data = await response.json();
+        setAppSettings({ assistantName: data.settings?.assistantName || 'Nazmi AI' });
+      }
+    } catch (err) {
+      console.error('Failed to load app settings:', err);
+    } finally {
+      setAppSettingsLoading(false);
+    }
+  };
+
+  const handleSaveAppSettings = async () => {
+    setAppSettingsError('');
+    setAppSettingsSuccess('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/app-settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify({ assistantName: appSettings.assistantName }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setAppSettingsSuccess('App name updated successfully');
+        setAppSettings({ assistantName: data.settings.assistantName });
+        setTimeout(() => setAppSettingsSuccess(''), 3000);
+      } else {
+        setAppSettingsError(data.error || 'Failed to save app settings');
+      }
+    } catch (err) {
+      setAppSettingsError('Error saving app settings: ' + err.message);
+    }
+  };
+
 // ============ ADMIN: user API keys ============
   const loadUserApiKeys = async () => {
     try {
@@ -591,7 +662,7 @@ const AIAssistant = () => {
                 <Sparkles size={30} className="text-white" />
               </div>
               <h1 className="text-3xl font-extrabold text-white tracking-tight">
-                Nazmi<span className="shimmer-text"> AI</span>
+                {appName}
               </h1>
               <p className="text-slate-400 mt-2 text-sm">Your premium personal AI assistant</p>
             </div>
@@ -622,7 +693,7 @@ const AIAssistant = () => {
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="demo"
+                       placeholder="username"
                       autoComplete="username"
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/70 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                     />
@@ -673,15 +744,7 @@ const AIAssistant = () => {
                 </button>
               </form>
 
-              <div className="mt-6 p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-700/50 text-xs text-slate-600 dark:text-slate-300">
-                <p className="font-semibold mb-1.5 flex items-center gap-1.5">
-                  <Shield size={13} /> Demo accounts
-                </p>
-                <p>
-                  User: <span className="font-mono font-medium text-violet-600 dark:text-violet-300">demo / demo123</span><br />
-                  Admin: <span className="font-mono font-medium text-violet-600 dark:text-violet-300">admin / nazmul123@@@</span>
-                </p>
-              </div>
+
             </div>
 
             <p className="text-center text-slate-500 text-xs mt-6">
@@ -807,7 +870,7 @@ const AIAssistant = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="font-bold text-sm truncate">
-                  {aiConfig.name}'s Assistant
+                  {appName}
                 </h1>
                 <p className={`text-[11px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                   Provider online · {username}
@@ -862,7 +925,7 @@ const AIAssistant = () => {
                 Hello{username ? `, ${username}` : ''} 👋
               </h2>
               <p className={`mt-2 max-w-md text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                I'm <span className="shimmer-text font-semibold">{aiConfig.name}</span>, your premium AI assistant.
+                I'm <span className="shimmer-text font-semibold">{appName}</span>, your premium AI assistant.
                 Ask me anything, upload an image, or start a fresh conversation below.
               </p>
             </div>
@@ -1053,18 +1116,6 @@ const AIAssistant = () => {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Assistant Name</label>
-              <input
-                type="text"
-                value={editingConfig.name}
-                onChange={(e) => setEditingConfig({ ...editingConfig, name: e.target.value })}
-                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all ${
-                  darkMode ? 'bg-slate-800/70 border-slate-700 text-white' : 'bg-white/70 border-slate-200'
-                }`}
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium mb-1.5">System Prompt</label>
               <textarea
@@ -1405,6 +1456,43 @@ const AIAssistant = () => {
                   {adminConfigSuccess}
                 </div>
               )}
+
+              <div className={`p-4 rounded-2xl border ${darkMode ? 'bg-slate-800/60 border-slate-700' : 'bg-white/70 border-slate-200'}`}>
+                <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                  <Globe size={15} className="text-violet-500" /> App Name
+                </h4>
+                <p className={`text-xs mb-3 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  This name is shown to every user across the app. Only admins can change it.
+                </p>
+                {appSettingsError && (
+                  <div className="mb-3 flex items-start gap-2 p-3 bg-rose-500/10 border border-rose-400/40 text-rose-600 dark:text-rose-300 rounded-xl text-xs">
+                    <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                    {appSettingsError}
+                  </div>
+                )}
+                {appSettingsSuccess && (
+                  <div className="mb-3 p-3 bg-emerald-500/10 border border-emerald-400/40 text-emerald-600 dark:text-emerald-300 rounded-xl text-xs fade-in">
+                    {appSettingsSuccess}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={appSettings.assistantName}
+                    onChange={(e) => setAppSettings({ ...appSettings, assistantName: e.target.value })}
+                    placeholder="Enter app name"
+                    className={`flex-1 px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all ${
+                      darkMode ? 'bg-slate-800/70 border-slate-700 text-white' : 'bg-white/70 border-slate-200'
+                    }`}
+                  />
+                  <button
+                    onClick={handleSaveAppSettings}
+                    className="btn-glow px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1.5">Provider</label>
