@@ -1,0 +1,41 @@
+{
+  "name": "ai-assistant-app",
+  "version": "1.0.0",
+  "description": "Premium Personal AI Assistant Web Application - Multi-API Provider Support",
+  "type": "module",
+  "main": "ai-assistant-backend.js",
+  "scripts": {
+    "start": "node ai-assistant-backend.js",
+    "dev": "nodemon ai-assistant-backend.js",
+    "build": "echo 'Frontend: npm run build in the client directory'"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "chatgpt",
+    "claude",
+    "openrouter",
+    "gemini",
+    "deepseek",
+    "web-app",
+    "multi-provider"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.3",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.24.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
