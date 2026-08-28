@@ -151,6 +151,16 @@ const AIAssistant = () => {
     }
   }, [appName]);
 
+  useEffect(() => {
+    let link = document.querySelector('link[rel="icon"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.href = isLoggedIn ? '/icon-192.png' : 'data:,';
+  }, [isLoggedIn]);
+
   // ============ LOADERS ============
   const loadProviders = async () => {
     try {

@@ -5,11 +5,13 @@ import 'dotenv/config';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import database from './database.js';
+import database, { initDatabase } from './database.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+initDatabase().catch(err => console.error("DB Init Error:", err));
 
 // Middleware
 app.use(cors());
