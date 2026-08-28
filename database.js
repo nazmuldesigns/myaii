@@ -432,7 +432,12 @@ export async function deleteLibraryImage(id, username) {
 
 
 
+// database.js ফাইলের একদম নিচে গিয়ে এটি আপডেট করুন:
+
+export { initDatabase };
+
 export default {
+  initDatabase,
   isDatabaseEnabled,
   getDb,
   getUser,
