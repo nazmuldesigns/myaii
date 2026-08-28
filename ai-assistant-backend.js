@@ -54,13 +54,42 @@ const DEMO_USERS = {
 // ============ DATABASE INIT ============
 const dbEnabled = database.isDatabaseEnabled();
 
-let globalApiConfig = {
-  provider: 'claude',
-  apiKey: process.env.CLAUDE_API_KEY || process.env.CUSTOM_API_KEY || '',
-  model: process.env.CLAUDE_MODEL || process.env.CUSTOM_API_MODEL || 'claude-3-5-sonnet-20241022',
-  updatedAt: new Date().toISOString(),
-  updatedBy: null,
-};
+function resolveApiKeyForProvider(provider) {
+  const keys = {
+    claude: process.env.CLAUDE_API_KEY,
+    openai: process.env.OPENAI_API_KEY,
+    openrouter: process.env.OPENROUTER_API_KEY,
+    gemini: process.env.GEMINI_API_KEY,
+    deepseek: process.env.DEEPSEEK_API_KEY,
+    custom: process.env.CUSTOM_API_KEY,
+  };
+  return (provider && keys[provider]) || process.env.CUSTOM_API_KEY || '';
+}
+
+function resolveModelForProvider(provider) {
+  const models = {
+    claude: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
+    openai: process.env.OPENAI_MODEL || 'gpt-4-turbo',
+    openrouter: process.env.OPENROUTER_MODEL || 'openrouter/auto',
+    gemini: process.env.GEMINI_MODEL || 'gemini-pro',
+    deepseek: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
+    custom: process.env.CUSTOM_API_MODEL || 'custom-model',
+  };
+  return (provider && models[provider]) || 'claude-3-5-sonnet-20241022';
+}
+
+function resolveConfigFromEnv() {
+  const provider = process.env.DEFAULT_PROVIDER || 'claude';
+  return {
+    provider,
+    apiKey: resolveApiKeyForProvider(provider),
+    model: resolveModelForProvider(provider),
+    updatedAt: new Date().toISOString(),
+    updatedBy: null,
+  };
+}
+
+let globalApiConfig = resolveConfigFromEnv();
 
 let customProviderConfig = {
   endpoint: process.env.CUSTOM_API_ENDPOINT || '',
@@ -80,10 +109,11 @@ async function initDb() {
 
     const savedApiConfig = await database.getApiConfig();
     if (savedApiConfig) {
+      const provider = savedApiConfig.provider || process.env.DEFAULT_PROVIDER || 'claude';
       globalApiConfig = {
-        provider: savedApiConfig.provider || process.env.DEFAULT_PROVIDER || 'claude',
-        apiKey: savedApiConfig.apiKey || process.env.CLAUDE_API_KEY || process.env.OPENAI_API_KEY || process.env.CUSTOM_API_KEY || '',
-        model: savedApiConfig.model || process.env.CLAUDE_MODEL || process.env.OPENAI_MODEL || process.env.CUSTOM_API_MODEL || 'claude-3-5-sonnet-20241022',
+        provider,
+        apiKey: savedApiConfig.apiKey || resolveApiKeyForProvider(provider),
+        model: savedApiConfig.model || resolveModelForProvider(provider),
         updatedAt: savedApiConfig.updatedAt || new Date().toISOString(),
         updatedBy: savedApiConfig.updatedBy || null,
       };
@@ -98,13 +128,7 @@ async function initDb() {
       };
     }
   } else {
-    globalApiConfig = {
-      provider: process.env.DEFAULT_PROVIDER || 'claude',
-      apiKey: process.env.CLAUDE_API_KEY || process.env.OPENAI_API_KEY || process.env.CUSTOM_API_KEY || '',
-      model: process.env.CLAUDE_MODEL || process.env.OPENAI_MODEL || process.env.CUSTOM_API_MODEL || 'claude-3-5-sonnet-20241022',
-      updatedAt: new Date().toISOString(),
-      updatedBy: null,
-    };
+    globalApiConfig = resolveConfigFromEnv();
     customProviderConfig = {
       endpoint: process.env.CUSTOM_API_ENDPOINT || '',
       headers: process.env.CUSTOM_API_HEADERS ? JSON.parse(process.env.CUSTOM_API_HEADERS) : {},
