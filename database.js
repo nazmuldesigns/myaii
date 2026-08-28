@@ -15,6 +15,12 @@ let pool = null;
 let useDatabase = false;
 
 async function initDatabase() {
+  // 1. Vercel Environment Check (Vercel-এ SQLite ব্লক রাখার জন্য)
+  if (process.env.VERCEL && DB_TYPE === 'sqlite') {
+    console.log('Database: SQLite is disabled on Vercel environment. Falling back to in-memory.');
+    return;
+  }
+
   if (DB_TYPE === 'none') {
     console.log('Database: using in-memory storage');
     return;
@@ -22,6 +28,7 @@ async function initDatabase() {
 
   try {
     if (DB_TYPE === 'sqlite') {
+      // Dynamic import with try-catch to prevent build crash
       const { default: Database } = await import('better-sqlite3');
       const dir = path.dirname(DB_PATH);
       if (!fs.existsSync(dir)) {
@@ -38,7 +45,7 @@ async function initDatabase() {
     }
 
     useDatabase = true;
-    createTables();
+    await createTables();
     console.log('Database: tables initialized');
   } catch (error) {
     console.error('Database initialization failed:', error.message);
@@ -47,8 +54,6 @@ async function initDatabase() {
     useDatabase = false;
   }
 }
-
-await initDatabase();
 
 function isDbEnabled() {
   return useDatabase;

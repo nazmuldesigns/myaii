@@ -4,12 +4,23 @@
     {
       "src": "ai-assistant-backend.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "ai-assistant-backend.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "client/$1"
     }
   ]
 }
