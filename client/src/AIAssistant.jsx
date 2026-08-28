@@ -156,10 +156,11 @@ const AIAssistant = () => {
     if (!link) {
       link = document.createElement('link');
       link.rel = 'icon';
+      link.type = 'image/png';
       document.head.appendChild(link);
     }
-    link.href = isLoggedIn ? '/icon-192.png' : 'data:,';
-  }, [isLoggedIn]);
+    link.href = '/icon-192.png';
+  }, []);
 
   // ============ LOADERS ============
   const loadProviders = async () => {
@@ -670,8 +671,8 @@ const AIAssistant = () => {
           <div className="w-full max-w-md">
             {/* Brand */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-indigo-500 shadow-lift mb-4">
-                <Sparkles size={30} className="text-white" />
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700 shadow-lift mb-4 overflow-hidden">
+                <img src="/icon-192.png" alt={appName} className="w-full h-full object-cover" />
               </div>
               <h1 className="text-3xl font-extrabold text-white tracking-tight">
                 {appName}
@@ -877,8 +878,8 @@ const AIAssistant = () => {
               {sidebarOpen ? <X size={19} /> : <Menu size={19} />}
             </button>
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-soft shrink-0">
-                <Sparkles size={16} className="text-white" />
+              <div className="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center shadow-soft shrink-0 overflow-hidden">
+                <img src="/icon-192.png" alt={appName} className="w-full h-full object-cover" />
               </div>
               <div className="min-w-0">
                 <h1 className="font-bold text-sm truncate">
@@ -947,8 +948,8 @@ const AIAssistant = () => {
                 <div key={msg.id} className={`flex msg-in ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`flex gap-2.5 max-w-[85%] sm:max-w-[75%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                     {msg.role !== 'user' && (
-                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0 mt-1">
-                        <Sparkles size={14} className="text-white" />
+                      <div className="w-8 h-8 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center shrink-0 mt-1 overflow-hidden">
+                        <img src="/icon-192.png" alt="AI" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div
@@ -982,8 +983,8 @@ const AIAssistant = () => {
               {isLoading && (
                 <div className="flex justify-start msg-in">
                   <div className="flex gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0">
-                      <Sparkles size={14} className="text-white" />
+                    <div className="w-8 h-8 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center shrink-0 overflow-hidden">
+                      <img src="/icon-192.png" alt="AI" className="w-full h-full object-cover" />
                     </div>
                     <div className={`px-4 py-3 rounded-2xl rounded-bl-md ${darkMode ? 'bg-slate-800 border border-slate-700/60' : 'bg-white border border-slate-200/70'} flex items-center gap-2`}>
                       <span className="typing-dot w-2 h-2 rounded-full bg-violet-500" />

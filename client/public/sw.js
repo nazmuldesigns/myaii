@@ -1,5 +1,5 @@
-const CACHE_NAME = 'ai-assistant-v2';
-const urlsToCache = ['/'];
+const CACHE_NAME = 'ai-assistant-v3';
+const urlsToCache = ['/', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
