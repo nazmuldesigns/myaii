@@ -430,7 +430,7 @@ export async function deleteLibraryImage(id, username) {
 
 // ============ INIT ============
 
-await initDatabase();
+
 
 export default {
   isDatabaseEnabled,

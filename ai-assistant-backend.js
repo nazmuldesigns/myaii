@@ -1,4 +1,13 @@
 import express from 'express';
+import { initDatabase } from './database.js';
+
+const app = express();
+
+// সার্ভার চালু বা রিকোয়েস্ট হ্যান্ডেল হওয়ার আগে ডাটাবেস ইনিশিয়ালাইজ করা
+initDatabase().catch(err => console.error("DB Init Error:", err));
+
+
+import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
